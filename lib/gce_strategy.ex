@@ -7,7 +7,6 @@ defmodule Cluster.Strategy.GoogleComputeEngine do
   @default_polling_interval 10_000
   @metadata_base_url 'http://metadata.google.internal/computeMetadata/v1'
   @google_api_base_url 'https://www.googleapis.com/compute/v1'
-  @default_release_name :node
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args)
@@ -71,8 +70,6 @@ defmodule Cluster.Strategy.GoogleComputeEngine do
       |> String.split("/")
       |> List.last()
 
-    release_name = get_release_name(state)
-
     headers = [{'Authorization', 'Bearer #{auth_token}'}]
 
     url = @google_api_base_url ++ '/#{zone}/instanceGroups/#{group_id}/listInstances'
@@ -95,6 +92,10 @@ defmodule Cluster.Strategy.GoogleComputeEngine do
             |> String.split("/")
             |> List.last()
 
+          release_name =
+            instance_name
+            |> String.replace("-", "_")
+
           node_name = :"#{release_name}@#{instance_name}.#{zone_name}.c.#{project}.internal"
           Cluster.Logger.debug(:gce, "   - Found node: #{inspect(node_name)}")
 
@@ -113,18 +114,6 @@ defmodule Cluster.Strategy.GoogleComputeEngine do
       {:ok, {{_, 200, _}, _headers, body}} ->
         Cluster.Logger.debug(:gce, "    Received body: #{inspect(body)}")
         body
-    end
-  end
-
-  defp get_release_name(%{config: config}) do
-    case Keyword.get(config, :release_name) do
-      nil ->
-        Cluster.Logger.warn(:gce, ":release_name not set in #{__MODULE__} config. Using default.")
-
-        @default_release_name
-
-      name ->
-        name
     end
   end
 end
