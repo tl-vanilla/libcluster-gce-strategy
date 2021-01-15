@@ -66,6 +66,7 @@ defmodule Cluster.Strategy.GoogleComputeEngine do
       |> List.last()
 
     zone_name =
+      zone
       |> String.Chars.to_string()
       |> String.split("/")
       |> List.last()
