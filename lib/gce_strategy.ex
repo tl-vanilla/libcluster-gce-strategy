@@ -65,6 +65,11 @@ defmodule Cluster.Strategy.GoogleComputeEngine do
       |> String.split("/")
       |> List.last()
 
+    zone_name =
+      |> String.Chars.to_string()
+      |> String.split("/")
+      |> List.last()
+
     release_name = get_release_name(state)
 
     headers = [{'Authorization', 'Bearer #{auth_token}'}]
@@ -89,7 +94,7 @@ defmodule Cluster.Strategy.GoogleComputeEngine do
             |> String.split("/")
             |> List.last()
 
-          node_name = :"#{release_name}@#{instance_name}.#{zone}.c.#{project}.internal"
+          node_name = :"#{release_name}@#{instance_name}.#{zone_name}.c.#{project}.internal"
           Cluster.Logger.debug(:gce, "   - Found node: #{inspect(node_name)}")
 
           node_name
