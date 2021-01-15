@@ -50,7 +50,7 @@ defmodule Cluster.Strategy.GoogleComputeEngine do
 
   defp get_nodes(state) do
     Cluster.Logger.debug(:gce, "Loading nodes from GCE API...")
-    project = Keyword.fetch!(config, :project)
+    project = Keyword.fetch!(state.config, :project)
 
     auth_token =
       get_metadata('/instance/service-accounts/default/token')
